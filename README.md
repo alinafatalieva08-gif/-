@@ -8,9 +8,3 @@
 - Leaflet.js (интерактивная карта)
 - LocalStorage (хранение данных)
 
-## 📦 Установка
-
-1. Клонируйте репозиторий:
-```bash
-git clone https://github.com/ваш-username/autosher.git
-cd autosher
