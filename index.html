@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АвтоШер — Каршеринг в Красноярске</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- ✅ Подключение внешнего CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">
+                    <div class="logo-icon">🚗</div>
+                    АвтоШер
+                </a>
+                <div class="nav-links">
+                    <a href="#cars">Автомобили</a>
+                    <a href="#how">Как это работает</a>
+                    <a href="#pricing">Тарифы</a>
+                    <a href="#reviews">Отзывы</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#contacts">Контакты</a>
+                </div>
+                <div class="nav-actions">
+                    <span class="nav-phone">+7 (391) 200-00-00</span>
+                    <button class="btn btn-outline btn-sm guest-only" id="loginBtn" onclick="openModal('login')">Войти</button>
+                    <button class="btn btn-primary btn-sm guest-only" id="regBtn" onclick="openModal('register')">Регистрация</button>
+                    <div class="user-menu-container auth-only hidden" id="userMenuContainer">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <span class="user-avatar-small" id="userAvatarHeader">U</span>
+                            <span class="user-name-display" id="userNameHeader">Гость</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#" onclick="openDashboard('profile'); toggleUserDropdown()">👤 Личный кабинет</a>
+                            <a href="#" onclick="openDashboard('bookings'); toggleUserDropdown()">📋 Мои поездки</a>
+                            <a href="#" onclick="openDashboard('newbook'); toggleUserDropdown()">🚗 Забронировать</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" onclick="logout()" style="color:var(--danger)">🚪 Выйти</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="hamburger" id="hamburger" onclick="toggleMobile()">
+                    <span></span><span></span><span></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#cars" onclick="closeMobile()">Автомобили</a>
+        <a href="#how" onclick="closeMobile()">Как это работает</a>
+        <a href="#pricing" onclick="closeMobile()">Тарифы</a>
+        <a href="#reviews" onclick="closeMobile()">Отзывы</a>
+        <a href="#faq" onclick="closeMobile()">FAQ</a>
+        <a href="#contacts" onclick="closeMobile()">Контакты</a>
+        <a href="tel:+73912000000">📞 +7 (391) 200-00-00</a>
+        <button class="btn btn-primary guest-mobile-btn" onclick="openModal('register'); closeMobile();">Зарегистрироваться</button>
+        <button class="btn btn-outline auth-mobile-btn hidden" onclick="openDashboard(); closeMobile();">Личный кабинет</button>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Каршеринг в <span>Красноярске</span> — ваш автомобиль за минуту</h1>
+                    <p>Арендуйте автомобиль поминутно, почасово или на сутки. Бензин, страховка и парковка уже включены. Просто откройте приложение и поезжайте!</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-accent pulse" id="heroCtaBtn" onclick="handleHeroCta()">Начать поездку</button>
+                        <a href="#cars" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: white;">Выбрать авто</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat"><div class="hero-stat-number">500+</div><div class="hero-stat-label">Автомобилей</div></div>
+                        <div class="hero-stat"><div class="hero-stat-number">50 000+</div><div class="hero-stat-label">Клиентов</div></div>
+                        <div class="hero-stat"><div class="hero-stat-number">8 ₽</div><div class="hero-stat-label">от за минуту</div></div>
+                        <div class="hero-stat"><div class="hero-stat-number">24/7</div><div class="hero-stat-label">Поддержка</div></div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-car-container">
+                        <!-- ✅ Заменено эмодзи на картинку -->
+                        <img src="/static/img/car-hero.png" alt="Автомобиль каршеринга" class="hero-car-img">
+
+                        <div class="hero-badge" style="top: 20px; right: -10px; animation-delay: 0.5s;">
+                            <div class="hero-badge-icon green">✓</div>
+                            <div>
+                                <div class="hero-badge-text">Бензин включён</div>
+                                <div class="hero-badge-sub">Не нужно платить</div>
+                            </div>
+                        </div>
+                        <div class="hero-badge" style="bottom: 30px; left: -10px; animation-delay: 1s;">
+                            <div class="hero-badge-icon blue">🛡</div>
+                            <div>
+                                <div class="hero-badge-text">Полная страховка</div>
+                                <div class="hero-badge-sub">КАСКО + ОСАГО</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOOKING BAR -->
+    <div class="container">
+        <div class="booking-bar fade-in">
+            <form class="booking-bar-form" onsubmit="quickBooking(event)">
+                <div class="form-group">
+                    <label>Тип поездки</label>
+                    <select id="tripType">
+                        <option value="minute">Поминутно</option>
+                        <option value="hour">Почасово</option>
+                        <option value="day">На сутки</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Класс авто</label>
+                    <select id="carClass">
+                        <option value="economy">Эконом</option>
+                        <option value="comfort">Комфорт</option>
+                        <option value="business">Бизнес</option>
+                        <option value="premium">Премиум</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Район Красноярска</label>
+                    <select id="district">
+                        <option value="">Выберите район</option>
+                        <option value="center">Центр</option>
+                        <option value="soviet">Советский</option>
+                        <option value="kirov">Кировский</option>
+                        <option value="lenin">Ленинский</option>
+                        <option value="oktyabr">Октябрьский</option>
+                        <option value="sverdlov">Свердловский</option>
+                        <option value="zhelezn">Железнодорожный</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">🔍 Найти авто</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADVANTAGES -->
+    <section class="section advantages" id="advantages">
+        <div class="container">
+            <h2 class="section-title fade-in">Почему выбирают нас</h2>
+            <p class="section-subtitle fade-in">Всё, что нужно для комфортной поездки — уже включено</p>
+            <div class="advantages-grid">
+                <div class="advantage-card fade-in"><div class="advantage-icon">⛽</div><h3>Топливо включено</h3><p>Бензин уже в стоимости аренды. Заправляйтесь с нашей топливной картой бесплатно</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">🛡️</div><h3>Полная страховка</h3><p>КАСКО и ОСАГО включены в тариф. Вы защищены на каждой поездке</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">🅿️</div><h3>Бесплатная парковка</h3><p>Паркуйтесь бесплатно на муниципальных парковках Красноярска</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">📱</div><h3>Всё через приложение</h3><p>Откройте авто со смартфона, управляйте поездкой в пару тапов</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">🧹</div><h3>Чистые автомобили</h3><p>Регулярная мойка и дезинфекция. Каждый автомобиль — как новый</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">🔧</div><h3>Техподдержка 24/7</h3><p>Наша служба поддержки работает круглосуточно и всегда на связи</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">💳</div><h3>Удобная оплата</h3><p>Привяжите карту и платите автоматически. Без наличных и очередей</p></div>
+                <div class="advantage-card fade-in"><div class="advantage-icon">🎁</div><h3>Бонусная программа</h3><p>Накапливайте баллы за каждую поездку и обменивайте на бесплатные минуты</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CARS CATALOG -->
+<section class="section" id="cars">
+    <div class="container">
+        <h2 class="section-title fade-in">Наши автомобили</h2>
+        <p class="section-subtitle fade-in">Выберите подходящий автомобиль для вашей поездки</p>
+        <div class="cars-filter fade-in">
+            <button class="filter-btn active" onclick="filterCars('all')">Все</button>
+            <button class="filter-btn" onclick="filterCars('economy')">Эконом</button>
+            <button class="filter-btn" onclick="filterCars('comfort')">Комфорт</button>
+            <button class="filter-btn" onclick="filterCars('business')">Бизнес</button>
+            <button class="filter-btn" onclick="filterCars('premium')">Премиум</button>
+        </div>
+        <div class="cars-grid" id="carsGrid">
+            <!-- ECONOMY -->
+            <div class="car-card fade-in" data-class="economy">
+                <div class="car-image">
+                    <img src="/static/img/cars/solaris.png" alt="Hyundai Solaris">
+                    <span class="car-badge economy">Эконом</span>
+                </div>
+                <div class="car-info">
+                    <h3>Hyundai Solaris</h3>
+                    <div class="car-class">Эконом-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">8 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Hyundai Solaris')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Hyundai Solaris')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~390 ₽</div>
+                        <div>📅 Сутки: ~2 100 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="economy">
+                <div class="car-image">
+                    <img src="/static/img/cars/rio.png" alt="Kia Rio">
+                    <span class="car-badge economy">Эконом</span>
+                </div>
+                <div class="car-info">
+                    <h3>Kia Rio</h3>
+                    <div class="car-class">Эконом-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">8 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Kia Rio')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Kia Rio')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~390 ₽</div>
+                        <div>📅 Сутки: ~2 100 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="economy">
+                <div class="car-image">
+                    <img src="/static/img/cars/polo.png" alt="Volkswagen Polo">
+                    <span class="car-badge economy">Эконом</span>
+                </div>
+                <div class="car-info">
+                    <h3>Volkswagen Polo</h3>
+                    <div class="car-class">Эконом-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">9 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Volkswagen Polo')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Volkswagen Polo')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~430 ₽</div>
+                        <div>📅 Сутки: ~2 350 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMFORT -->
+            <div class="car-card fade-in" data-class="comfort">
+                <div class="car-image">
+                    <img src="/static/img/cars/octavia.png" alt="Skoda Octavia">
+                    <span class="car-badge popular">Популярный</span>
+                </div>
+                <div class="car-info">
+                    <h3>Skoda Octavia</h3>
+                    <div class="car-class">Комфорт-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">12 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Skoda Octavia')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Skoda Octavia')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~580 ₽</div>
+                        <div>📅 Сутки: ~3 150 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="comfort">
+                <div class="car-image">
+                    <img src="/static/img/cars/mazda3.png" alt="Mazda 3">
+                    <span class="car-badge popular">Популярный</span>
+                </div>
+                <div class="car-info">
+                    <h3>Mazda 3</h3>
+                    <div class="car-class">Комфорт-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">13 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Mazda 3')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Mazda 3')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~620 ₽</div>
+                        <div>📅 Сутки: ~3 400 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="comfort">
+                <div class="car-image">
+                    <img src="/static/img/cars/corolla.png" alt="Toyota Corolla">
+                    <span class="car-badge popular">Популярный</span>
+                </div>
+                <div class="car-info">
+                    <h3>Toyota Corolla</h3>
+                    <div class="car-class">Комфорт-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">13 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Toyota Corolla')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Toyota Corolla')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~620 ₽</div>
+                        <div>📅 Сутки: ~3 400 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUSINESS -->
+            <div class="car-card fade-in" data-class="business">
+                <div class="car-image">
+                    <img src="/static/img/cars/bmw3.png" alt="BMW 3 Series">
+                    <span class="car-badge premium">Бизнес</span>
+                </div>
+                <div class="car-info">
+                    <h3>BMW 3 Series</h3>
+                    <div class="car-class">Бизнес-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">18 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('BMW 3 Series')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('BMW 3 Series')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~860 ₽</div>
+                        <div>📅 Сутки: ~4 700 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="business">
+                <div class="car-image">
+                    <img src="/static/img/cars/mercedes-c.png" alt="Mercedes-Benz C-Class">
+                    <span class="car-badge premium">Бизнес</span>
+                </div>
+                <div class="car-info">
+                    <h3>Mercedes-Benz C-Class</h3>
+                    <div class="car-class">Бизнес-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">20 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Mercedes-Benz C-Class')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Mercedes-Benz C-Class')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~960 ₽</div>
+                        <div>📅 Сутки: ~5 250 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PREMIUM -->
+            <div class="car-card fade-in" data-class="premium">
+                <div class="car-image">
+                    <img src="/static/img/cars/bmw5.png" alt="BMW 5 Series">
+                    <span class="car-badge premium">Премиум</span>
+                </div>
+                <div class="car-info">
+                    <h3>BMW 5 Series</h3>
+                    <div class="car-class">Премиум-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">28 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('BMW 5 Series')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('BMW 5 Series')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~1 340 ₽</div>
+                        <div>📅 Сутки: ~7 350 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="premium">
+                <div class="car-image">
+                    <img src="/static/img/cars/audi-a6.png" alt="Audi A6">
+                    <span class="car-badge premium">Премиум</span>
+                </div>
+                <div class="car-info">
+                    <h3>Audi A6</h3>
+                    <div class="car-class">Премиум-класс</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Бензин</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">30 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Audi A6')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Audi A6')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~1 440 ₽</div>
+                        <div>📅 Сутки: ~7 900 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-card fade-in" data-class="premium">
+                <div class="car-image">
+                    <img src="/static/img/cars/mercedes-gle.png" alt="Mercedes-Benz GLE">
+                    <span class="car-badge premium">Премиум</span>
+                </div>
+                <div class="car-info">
+                    <h3>Mercedes-Benz GLE</h3>
+                    <div class="car-class">Премиум SUV</div>
+                    <div class="car-specs">
+                        <span class="car-spec"><span class="car-spec-icon">⚙️</span> АКПП</span>
+                        <span class="car-spec"><span class="car-spec-icon">⛽</span> Дизель</span>
+                        <span class="car-spec"><span class="car-spec-icon">👥</span> 5 мест</span>
+                    </div>
+                    <div class="car-pricing">
+                        <div class="car-price">35 ₽ <small>/ мин</small></div>
+                        <button class="btn btn-primary btn-sm" onclick="openBooking('Mercedes-Benz GLE')">Забронировать</button>
+                    </div>
+                    <div class="car-buttons">
+                        <button class="btn btn-info btn-sm" onclick="openInfoModal('Mercedes-Benz GLE')">ℹ️ Информация</button>
+                    </div>
+                    <div class="car-prices-mini">
+                        <div>📦 2 часа: ~1 680 ₽</div>
+                        <div>📅 Сутки: ~9 200 ₽</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section how-it-works" id="how">
+        <div class="container">
+            <h2 class="section-title fade-in">Как это работает</h2>
+            <p class="section-subtitle fade-in">Четыре простых шага до вашей поездки</p>
+            <div class="steps-grid">
+                <div class="step-card fade-in"><div class="step-number">1</div><h3>Зарегистрируйтесь</h3><p>Загрузите паспорт и водительское удостоверение. Верификация за 5 минут</p></div>
+                <div class="step-card fade-in"><div class="step-number">2</div><h3>Найдите авто</h3><p>Откройте карту в приложении и выберите ближайший свободный автомобиль</p></div>
+                <div class="step-card fade-in"><div class="step-number">3</div><h3>Откройте и поезжайте</h3><p>Разблокируйте авто через приложение. Ключи уже внутри. Просто садитесь и езжайте!</p></div>
+                <div class="step-card fade-in"><div class="step-number">4</div><h3>Завершите поездку</h3><p>Припаркуйтесь в разрешённой зоне и нажмите «Завершить». Оплата спишется автоматически</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section" id="pricing">
+        <div class="container">
+            <h2 class="section-title fade-in">Тарифы</h2>
+            <p class="section-subtitle fade-in">Выберите подходящий тариф для вашей поездки</p>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-in">
+                    <div class="pricing-icon">⏱️</div>
+                    <h3>Поминутный</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem;">От 8 до 35 ₽/мин</p>
+                    <div class="price">8-35 ₽ <small>/ мин</small></div>
+                    <ul class="pricing-features">
+                        <li>Зависит от класса авто</li>
+                        <li>Бензин включён</li>
+                        <li>Страховка включена</li>
+                        <li>Бесплатная парковка</li>
+                        <li>Без залога</li>
+                    </ul>
+                    <button class="btn btn-outline pricing-select-btn auth-only hidden" onclick="selectTariffFromPricing('minute')">Выбрать этот тариф</button>
+                    <div class="guest-message guest-only">
+                        <a onclick="openModal('login')">Войдите</a> или <a onclick="openModal('register')">зарегистрируйтесь</a>, чтобы выбрать тариф
+                    </div>
+                </div>
+                <div class="pricing-card featured fade-in">
+                    <div class="pricing-icon">🕐</div>
+                    <h3>Пакет 2 часа</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem;">Выгоднее на 15-20%</p>
+                    <div class="price">390-1 680 ₽</div>
+                    <ul class="pricing-features">
+                        <li>Фиксированная цена</li>
+                        <li>Бензин включён</li>
+                        <li>Страховка включена</li>
+                        <li>20 км включено</li>
+                        <li>Бонусные баллы ×2</li>
+                    </ul>
+                    <button class="btn btn-primary pricing-select-btn auth-only hidden" onclick="selectTariffFromPricing('hour')">Выбрать этот тариф</button>
+                    <div class="guest-message guest-only">
+                        <a onclick="openModal('login')">Войдите</a> или <a onclick="openModal('register')">зарегистрируйтесь</a>, чтобы выбрать тариф
+                    </div>
+                </div>
+                <div class="pricing-card fade-in">
+                    <div class="pricing-icon">📅</div>
+                    <h3>Суточный</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem;">Максимальная выгода</p>
+                    <div class="price">2 100-9 200 ₽</div>
+                    <ul class="pricing-features">
+                        <li>Фиксированная цена за 24ч</li>
+                        <li>Бензин включён</li>
+                        <li>Страховка включена</li>
+                        <li>200 км включено</li>
+                        <li>Бонусные баллы ×3</li>
+                        <li>Доставка авто</li>
+                    </ul>
+                    <button class="btn btn-outline pricing-select-btn auth-only hidden" onclick="selectTariffFromPricing('day')">Выбрать этот тариф</button>
+                    <div class="guest-message guest-only">
+                        <a onclick="openModal('login')">Войдите</a> или <a onclick="openModal('register')">зарегистрируйтесь</a>, чтобы выбрать тариф
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="section reviews" id="reviews">
+        <div class="container">
+            <h2 class="section-title fade-in">Отзывы клиентов</h2>
+            <p class="section-subtitle fade-in">Что говорят наши пользователи о сервисе</p>
+            <div class="reviews-grid">
+                <div class="review-card fade-in">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Пользуюсь АвтоШер уже полгода — это невероятно удобно! Машины всегда чистые, бензин полный.»</p>
+                    <div class="review-author"><div class="review-avatar">АК</div><div><div class="review-name">Алексей Козлов</div><div class="review-date">15 марта 2026</div></div></div>
+                </div>
+                <div class="review-card fade-in">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Отличный сервис! Брала машину на выходные — всё прошло идеально.»</p>
+                    <div class="review-author"><div class="review-avatar">МС</div><div><div class="review-name">Мария Смирнова</div><div class="review-date">2 апреля 2026</div></div></div>
+                </div>
+                <div class="review-card fade-in">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Пересел с такси на каршеринг — экономлю до 40% на поездках по городу.»</p>
+                    <div class="review-author"><div class="review-avatar">ДВ</div><div><div class="review-name">Дмитрий Волков</div><div class="review-date">18 апреля 2026</div></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ZONES WITH INTERACTIVE MAP -->
+    <section class="section zones" id="zones">
+        <div class="container">
+            <h2 class="section-title fade-in">Карта автомобилей</h2>
+            <p class="section-subtitle fade-in">Найдите ближайший свободный автомобиль в Красноярске</p>
+            <div class="zones-content">
+                <div class="zones-map fade-in">
+                    <div id="carMap"></div>
+                    <div class="map-legend">
+                        <div class="map-legend-title">🚗 Фильтр классов</div>
+                        <div class="legend-item active" data-class="all">
+                            <span class="legend-marker" style="background: linear-gradient(135deg, var(--success), var(--primary), #8b5cf6, var(--accent));">★</span>
+                            <span>Все автомобили</span>
+                        </div>
+                        <div class="legend-item" data-class="economy">
+                            <span class="legend-marker economy">Э</span>
+                            <span>Эконом (от 8₽/мин)</span>
+                        </div>
+                        <div class="legend-item" data-class="comfort">
+                            <span class="legend-marker comfort">К</span>
+                            <span>Комфорт (от 12₽/мин)</span>
+                        </div>
+                        <div class="legend-item" data-class="business">
+                            <span class="legend-marker business">Б</span>
+                            <span>Бизнес (от 18₽/мин)</span>
+                        </div>
+                        <div class="legend-item" data-class="premium">
+                            <span class="legend-marker premium">П</span>
+                            <span>Премиум (от 28₽/мин)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="zones-info fade-in">
+                    <h3>Весь Красноярск — ваша зона</h3>
+                    <p>Мы покрываем все 7 районов города. Завершить поездку можно в любой точке зоны покрытия.</p>
+                    <div class="zones-list">
+                        <div class="zones-list-item"><span>📍</span><span>Центральный район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Советский район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Кировский район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Ленинский район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Октябрьский район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Свердловский район</span></div>
+                        <div class="zones-list-item"><span>📍</span><span>Железнодорожный район</span></div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="document.getElementById('cars').scrollIntoView({behavior:'smooth'})">
+                        🚗 Выбрать автомобиль
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+        <div class="container">
+            <h2 class="section-title fade-in">Частые вопросы</h2>
+            <p class="section-subtitle fade-in">Ответы на популярные вопросы наших клиентов</p>
+            <div class="faq-list">
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Что нужно для регистрации?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            Для регистрации вам понадобятся: паспорт РФ, водительское удостоверение (стаж от 2 лет), банковская карта для оплаты. Возраст — от 21 года. Верификация занимает около 5 минут.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Входит ли бензин в стоимость?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            Да! Топливо уже включено в тариф. В каждом автомобиле есть топливная карта в бардачке. Вы можете заправляться на любых АЗС партнёров бесплатно.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Что делать, если произошло ДТП?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            В первую очередь — не паникуйте. Все автомобили застрахованы по КАСКО и ОСАГО. Позвоните в нашу поддержку 24/7 по номеру +7 (391) 200-00-00, мы поможем оформить все документы.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Можно ли выехать за пределы Красноярска?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            Да, вы можете выезжать за пределы города, но завершить поездку нужно в зоне покрытия (в пределах Красноярска). Для поездок за город рекомендуем суточный тариф.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Как работает бонусная программа?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            За каждую поездку вы получаете бонусные баллы: 1 балл = 1 ₽, потраченный на поездку. Баллы можно обменять на бесплатные минуты или скидку на следующие поездки. 1000 баллов = 50 минут бесплатно!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Есть ли залог при аренде?
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            Нет, мы не требуем залог. Оплата происходит автоматически с привязанной банковской карты по факту завершённой поездки. Прозрачно и без скрытых платежей.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section class="section" id="contacts" style="background: var(--gray-light);">
+        <div class="container">
+            <h2 class="section-title fade-in">Контакты</h2>
+            <p class="section-subtitle fade-in">Свяжитесь с нами любым удобным способом</p>
+            <div class="contacts-grid">
+                <div class="contact-form fade-in">
+                    <h3>Напишите нам</h3>
+                    <p>Мы ответим в течение 30 минут</p>
+                    <form onsubmit="submitContact(event)">
+                        <div class="form-group">
+                            <input type="text" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" placeholder="Телефон" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Ваше сообщение..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Отправить сообщение</button>
+                    </form>
+                </div>
+                <div class="contact-info fade-in">
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">📞</div>
+                        <div class="contact-info-text">
+                            <h4>Телефон</h4>
+                            <p><a href="tel:+73912000000">+7 (391) 200-00-00</a></p>
+                            <p>Круглосуточно, без выходных</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">📧</div>
+                        <div class="contact-info-text">
+                            <h4>Email</h4>
+                            <p><a href="mailto:info@autosher24.ru">info@autosher24.ru</a></p>
+                            <p>Ответим в течение часа</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">📍</div>
+                        <div class="contact-info-text">
+                            <h4>Офис</h4>
+                            <p>г. Красноярск, пр. Мира, 105<br>БЦ «Красноярский», офис 312</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">⏰</div>
+                        <div class="contact-info-text">
+                            <h4>Режим работы</h4>
+                            <p>Офис: Пн-Пт 9:00 - 20:00<br>Сервис: 24/7 без выходных</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon">💬</div>
+                        <div class="contact-info-text">
+                            <h4>Мессенджеры</h4>
+                            <p>Telegram, WhatsApp, Viber<br><a href="#">@autosher24</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">🚗</div>
+                        АвтоШер
+                    </div>
+                    <p>Каршеринг в Красноярске — современный и удобный способ передвижения по городу. Более 500 автомобилей для ваших поездок.</p>
+                    <div class="footer-social">
+                        <a href="#" title="Telegram">💬</a>
+                        <a href="#" title="VK">📘</a>
+                        <a href="#" title="Instagram">📸</a>
+                        <a href="#" title="YouTube">▶️</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Навигация</h4>
+                    <a href="#cars">Автомобили</a>
+                    <a href="#pricing">Тарифы</a>
+                    <a href="#how">Как это работает</a>
+                    <a href="#zones">Зона покрытия</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Документы</h4>
+                    <a href="#">Пользовательское соглашение</a>
+                    <a href="#">Политика конфиденциальности</a>
+                    <a href="#">Правила аренды</a>
+                    <a href="#">Страховка</a>
+                    <a href="#">Оферта</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <a href="tel:+73912000000">+7 (391) 200-00-00</a>
+                    <a href="mailto:info@autosher24.ru">info@autosher24.ru</a>
+                    <a href="#">г. Красноярск, пр. Мира, 105</a>
+                    <a href="#">Пн-Пт 9:00 - 20:00</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 АвтоШер Красноярск. Все права защищены.</span>
+                <span>ИНН 2465000000 | ОГРН 1234567890123</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="modal-login">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('login')">✕</button>
+            <h2>Вход в аккаунт</h2>
+            <p>Введите данные для входа</p>
+            <form onsubmit="submitLogin(event)">
+                <div class="form-group"><input type="email" id="loginEmail" placeholder="Email" required></div>
+                <div class="form-group"><input type="password" id="loginPass" placeholder="Пароль" required></div>
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+            <p class="modal-note">Нет аккаунта? <a href="#" onclick="switchModal('login','register')" style="color:var(--primary)">Зарегистрироваться</a></p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-register">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('register')">✕</button>
+            <div id="registerForm">
+                <h2>Регистрация</h2>
+                <p>Создайте аккаунт и начните пользоваться каршерингом</p>
+                <form onsubmit="submitRegister(event)">
+                    <div class="form-group"><input type="text" id="regName" placeholder="Имя и фамилия" required></div>
+                    <div class="form-group"><input type="tel" placeholder="Телефон" required></div>
+                    <div class="form-group"><input type="email" id="regEmail" placeholder="Email" required></div>
+                    <div class="form-group"><input type="password" id="regPass" placeholder="Пароль (минимум 6 символов)" required minlength="6"></div>
+                    <div class="form-group"><input type="date" placeholder="Дата рождения" required></div>
+                    <div class="form-group"><input type="text" placeholder="Номер водительского удостоверения" required></div>
+                    <button type="submit" class="btn btn-accent">Зарегистрироваться</button>
+                </form>
+                <p class="modal-note">Регистрируясь, вы принимаете <a href="#" style="color:var(--primary);">условия использования</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-book">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('book')">✕</button>
+            <div id="bookForm">
+                <h2>Бронирование</h2>
+                <p>Выберите автомобиль и дату</p>
+                <form onsubmit="submitBooking(event)">
+                    <div class="form-group"><input type="text" id="bookName" placeholder="Ваше имя" required></div>
+                    <div class="form-group"><input type="tel" id="bookPhone" placeholder="Телефон" required></div>
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">АВТОМОБИЛЬ</label>
+                        <select id="bookCar" required>
+                            <option value="">— Выберите автомобиль —</option>
+                            <optgroup label="🚗 Эконом-класс">
+                                <option value="Hyundai Solaris">Hyundai Solaris — 8 ₽/мин</option>
+                                <option value="Kia Rio">Kia Rio — 8 ₽/мин</option>
+                                <option value="Volkswagen Polo">Volkswagen Polo — 9 ₽/мин</option>
+                            </optgroup>
+                            <optgroup label="🚙 Комфорт-класс">
+                                <option value="Skoda Octavia">Skoda Octavia — 12 ₽/мин</option>
+                                <option value="Mazda 3">Mazda 3 — 13 ₽/мин</option>
+                                <option value="Toyota Corolla">Toyota Corolla — 13 ₽/мин</option>
+                            </optgroup>
+                            <optgroup label="🚘 Бизнес-класс">
+                                <option value="BMW 3 Series">BMW 3 Series — 18 ₽/мин</option>
+                                <option value="Mercedes-Benz C-Class">Mercedes-Benz C-Class — 20 ₽/мин</option>
+                            </optgroup>
+                            <optgroup label="🏎️ Премиум-класс">
+                                <option value="BMW 5 Series">BMW 5 Series — 28 ₽/мин</option>
+                                <option value="Audi A6">Audi A6 — 30 ₽/мин</option>
+                                <option value="Mercedes-Benz GLE">Mercedes-Benz GLE — 35 ₽/мин</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">ТИП ТАРИФА</label>
+                        <select id="bookTariff" required>
+                            <option value="minute">Поминутный — от 8 ₽/мин</option>
+                            <option value="hour">Пакет 2 часа</option>
+                            <option value="day">Суточный</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">ДАТА НАЧАЛА</label>
+                        <input type="datetime-local" id="bookDate" required>
+                    </div>
+                    <div class="form-group"><input type="text" placeholder="Адрес подачи"></div>
+                    <button type="submit" class="btn btn-primary">Забронировать авто</button>
+                </form>
+                <p class="modal-note">Бронирование бесплатно. Оплата при завершении поездки.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-info">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('info')">✕</button>
+            <div id="infoContent"></div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard-overlay" id="dashboardOverlay">
+        <div class="dashboard-container">
+            <button class="dashboard-close" onclick="closeDashboard()">✕</button>
+            <div class="dashboard-header">
+                <h2>Личный кабинет</h2>
+                <div class="dashboard-user">
+                    <div class="avatar-lg" id="dashAvatar">👤</div>
+                    <div>
+                        <div style="font-weight:800; font-size:1.2rem;" id="dashName">Гость</div>
+                        <div style="color:var(--gray); font-size:0.9rem;" id="dashEmail">email@example.com</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-tabs">
+                <button class="tab-btn active" onclick="switchTab('profile')">Профиль</button>
+                <button class="tab-btn" onclick="switchTab('bookings')">Мои поездки</button>
+                <button class="tab-btn" onclick="switchTab('newbook')">Забронировать</button>
+            </div>
+            <div class="tab-content active" id="tab-profile">
+                <h3 style="margin-bottom:16px;">Ваши данные</h3>
+                <div style="background:var(--gray-light); padding:20px; border-radius:12px; margin-bottom:16px;">
+                    <p style="margin:8px 0;"><strong>Имя:</strong> <span id="profName">-</span></p>
+                    <p style="margin:8px 0;"><strong>Email:</strong> <span id="profEmail">-</span></p>
+                    <p style="margin:8px 0;"><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+                    <p style="margin:8px 0;"><strong>ВУ:</strong> 24 01 123456</p>
+                </div>
+                <p style="color:var(--gray); font-size:0.9rem;">Статус: <span style="color:var(--success); font-weight:700;">✅ Подтверждено</span></p>
+            </div>
+            <div class="tab-content" id="tab-bookings">
+                <h3 style="margin-bottom:16px;">История бронирований</h3>
+                <div id="bookingsList"></div>
+            </div>
+            <div class="tab-content" id="tab-newbook">
+                <h3 style="margin-bottom:16px;">Быстрая бронь</h3>
+                <form onsubmit="submitQuickBook(event)">
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">АВТОМОБИЛЬ</label>
+                        <select id="dashCarSelect" style="width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px;">
+                            <option value="Hyundai Solaris">🚗 Hyundai Solaris (Эконом) — 8 ₽/мин</option>
+                            <option value="Kia Rio">🚗 Kia Rio (Эконом) — 8 ₽/мин</option>
+                            <option value="Volkswagen Polo">🚗 Volkswagen Polo (Эконом) — 9 ₽/мин</option>
+                            <option value="Skoda Octavia">🚙 Skoda Octavia (Комфорт) — 12 ₽/мин</option>
+                            <option value="Mazda 3">🚙 Mazda 3 (Комфорт) — 13 ₽/мин</option>
+                            <option value="Toyota Corolla">🚙 Toyota Corolla (Комфорт) — 13 ₽/мин</option>
+                            <option value="BMW 3 Series">🚘 BMW 3 Series (Бизнес) — 18 ₽/мин</option>
+                            <option value="Mercedes-Benz C-Class">🚘 Mercedes C-Class (Бизнес) — 20 ₽/мин</option>
+                            <option value="BMW 5 Series">🏎️ BMW 5 Series (Премиум) — 28 ₽/мин</option>
+                            <option value="Audi A6">🏎️ Audi A6 (Премиум) — 30 ₽/мин</option>
+                            <option value="Mercedes-Benz GLE">🚐 Mercedes GLE (Премиум) — 35 ₽/мин</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">ТИП ТАРИФА</label>
+                        <select id="dashTariffSelect" style="width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px;">
+                            <option value="minute">Поминутно</option>
+                            <option value="hour">Пакет 2 часа</option>
+                            <option value="day">Суточно</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; display:block;">ДАТА НАЧАЛА</label>
+                        <input type="datetime-local" id="dashDate" style="width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px;" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Забронировать сейчас</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST & SCROLL TOP -->
+    <div class="toast" id="toast"><span id="toastIcon">✓</span><span id="toastText">Успешно!</span></div>
+    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Все скрипты встроены -->
+    <script>
+        // ===== CAR DATA =====
+        const carData = {
+            'Hyundai Solaris': { emoji: '🚗', class: 'Эконом-класс', badgeClass: 'badge-economy', year: 2023, engine: '1.6 л, 123 л.с.', transmission: 'Автомат (6AT)', fuel: 'Бензин АИ-92', consumption: '6.0 л/100км', trunk: '480 л', acceleration: '10.3 сек (0-100)', features: ['Кондиционер', 'Bluetooth', 'USB', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (6 шт.)', 'Камера заднего вида'] },
+            'Kia Rio': { emoji: '🚗', class: 'Эконом-класс', badgeClass: 'badge-economy', year: 2023, engine: '1.6 л, 123 л.с.', transmission: 'Автомат (6AT)', fuel: 'Бензин АИ-92', consumption: '6.0 л/100км', trunk: '480 л', acceleration: '10.3 сек (0-100)', features: ['Кондиционер', 'Bluetooth', 'USB', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (6 шт.)', 'Камера заднего вида'] },
+            'Volkswagen Polo': { emoji: '🚗', class: 'Эконом-класс', badgeClass: 'badge-economy', year: 2023, engine: '1.6 л, 110 л.с.', transmission: 'Автомат (6AT)', fuel: 'Бензин АИ-92', consumption: '5.8 л/100км', trunk: '530 л', acceleration: '10.5 сек (0-100)', features: ['Кондиционер', 'Bluetooth', 'USB', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (6 шт.)', 'Датчик дождя'] },
+            'Skoda Octavia': { emoji: '🚙', class: 'Комфорт-класс', badgeClass: 'badge-comfort', year: 2023, engine: '1.4 TSI, 150 л.с.', transmission: 'Автомат (DSG)', fuel: 'Бензин АИ-95', consumption: '6.5 л/100км', trunk: '600 л', acceleration: '8.4 сек (0-100)', features: ['Климат-контроль', 'Bluetooth', 'USB-C', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (9 шт.)', 'Камера заднего вида', 'Парктроники', 'LED-фары'] },
+            'Mazda 3': { emoji: '🚙', class: 'Комфорт-класс', badgeClass: 'badge-comfort', year: 2023, engine: '2.0 л, 150 л.с.', transmission: 'Автомат (6AT)', fuel: 'Бензин АИ-95', consumption: '6.8 л/100км', trunk: '444 л', acceleration: '9.0 сек (0-100)', features: ['Климат-контроль', 'Bluetooth', 'USB', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (6 шт.)', 'Камера заднего вида', 'Парктроники', 'LED-фары'] },
+            'Toyota Corolla': { emoji: '🚙', class: 'Комфорт-класс', badgeClass: 'badge-comfort', year: 2023, engine: '1.6 л, 122 л.с.', transmission: 'Вариатор (CVT)', fuel: 'Бензин АИ-92', consumption: '6.2 л/100км', trunk: '470 л', acceleration: '10.8 сек (0-100)', features: ['Климат-контроль', 'Bluetooth', 'USB', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (7 шт.)', 'Камера заднего вида', 'Парктроники'] },
+            'BMW 3 Series': { emoji: '🚘', class: 'Бизнес-класс', badgeClass: 'badge-business', year: 2023, engine: '2.0 Turbo, 184 л.с.', transmission: 'Автомат (8AT)', fuel: 'Бензин АИ-95', consumption: '7.5 л/100км', trunk: '480 л', acceleration: '7.1 сек (0-100)', features: ['Климат-контроль 2-зонный', 'Bluetooth', 'USB-C', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (8 шт.)', 'Камера заднего вида', 'Парктроники', 'LED-фары', 'Кожаный салон', 'Навигация'] },
+            'Mercedes-Benz C-Class': { emoji: '🚘', class: 'Бизнес-класс', badgeClass: 'badge-business', year: 2023, engine: '2.0 Turbo, 204 л.с.', transmission: 'Автомат (9G-Tronic)', fuel: 'Бензин АИ-95', consumption: '7.8 л/100км', trunk: '455 л', acceleration: '7.3 сек (0-100)', features: ['Климат-контроль 2-зонный', 'Bluetooth', 'USB-C', 'Подогрев сидений', 'ABS', 'ESP', 'Подушки безопасности (9 шт.)', 'Камера заднего вида', 'Парктроники', 'LED-фары', 'Кожаный салон', 'Навигация', 'Ambient подсветка'] },
+            'BMW 5 Series': { emoji: '🏎️', class: 'Премиум-класс', badgeClass: 'badge-premium', year: 2023, engine: '2.0 Turbo, 252 л.с.', transmission: 'Автомат (8AT)', fuel: 'Бензин АИ-95', consumption: '8.5 л/100км', trunk: '530 л', acceleration: '6.2 сек (0-100)', features: ['Климат-контроль 4-зонный', 'Bluetooth', 'USB-C', 'Подогрев/вентиляция сидений', 'ABS', 'ESP', 'Подушки безопасности (10 шт.)', 'Камера 360°', 'Парктроники', 'LED-фары Matrix', 'Кожаный салон Nappa', 'Навигация', 'Harman Kardon аудио', 'Панорамная крыша'] },
+            'Audi A6': { emoji: '🏎️', class: 'Премиум-класс', badgeClass: 'badge-premium', year: 2023, engine: '2.0 TFSI, 245 л.с.', transmission: 'Автомат (7 S-tronic)', fuel: 'Бензин АИ-95', consumption: '8.2 л/100км', trunk: '530 л', acceleration: '6.5 сек (0-100)', features: ['Климат-контроль 4-зонный', 'Bluetooth', 'USB-C', 'Подогрев/вентиляция сидений', 'ABS', 'ESP', 'Подушки безопасности (10 шт.)', 'Камера 360°', 'Парктроники', 'LED-фары Matrix', 'Кожаный салон Valcona', 'Навигация MMI', 'Bang & Olufsen аудио', 'Панорамная крыша'] },
+            'Mercedes-Benz GLE': { emoji: '🚐', class: 'Премиум SUV', badgeClass: 'badge-premium', year: 2023, engine: '2.0 Diesel, 272 л.с.', transmission: 'Автомат (9G-Tronic)', fuel: 'Дизель', consumption: '9.5 л/100км', trunk: '630 л', acceleration: '6.8 сек (0-100)', features: ['Климат-контроль 4-зонный', 'Bluetooth', 'USB-C', 'Подогрев/вентиляция/массаж сидений', 'ABS', 'ESP', 'Подушки безопасности (12 шт.)', 'Камера 360°', 'Парктроники', 'LED-фары Multibeam', 'Кожаный салон Nappa', 'Навигация', 'Burmester аудио', 'Панорамная крыша', 'Пневмоподвеска'] }
+        };
+
+        // ===== DATABASE =====
+        const DB_USERS = 'autosher_users', DB_CURRENT = 'autosher_current', DB_BOOKINGS = 'autosher_bookings';
+        function getDB(key) { try { return JSON.parse(localStorage.getItem(key)) || (key === DB_USERS ? [] : key === DB_BOOKINGS ? [] : null); } catch { return key === DB_USERS ? [] : key === DB_BOOKINGS ? [] : null; } }
+        function setDB(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+        let currentUser = getDB(DB_CURRENT);
+
+        // ===== AUTH =====
+        function checkAuth() {
+            const guestElements = document.querySelectorAll('.guest-only, .guest-mobile-btn');
+            const authElements = document.querySelectorAll('.auth-only, .auth-mobile-btn');
+            const heroCta = document.getElementById('heroCtaBtn');
+            if (currentUser) {
+                guestElements.forEach(el => el.classList.add('hidden'));
+                authElements.forEach(el => el.classList.remove('hidden'));
+                document.getElementById('userNameHeader').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('userAvatarHeader').textContent = currentUser.name.charAt(0).toUpperCase();
+                heroCta.textContent = 'Личный кабинет';
+                heroCta.onclick = () => openDashboard('newbook');
+                updateDashboardUI();
+            } else {
+                guestElements.forEach(el => el.classList.remove('hidden'));
+                authElements.forEach(el => el.classList.add('hidden'));
+                heroCta.textContent = 'Начать поездку';
+                heroCta.onclick = () => openModal('register');
+            }
+        }
+        function submitRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim(), email = document.getElementById('regEmail').value.trim(), pass = document.getElementById('regPass').value;
+            const users = getDB(DB_USERS);
+            if (users.find(u => u.email === email)) { showToast('Email уже зарегистрирован', 'error'); return; }
+            const newUser = { name, email, pass, createdAt: new Date().toISOString() };
+            users.push(newUser); setDB(DB_USERS, users); setDB(DB_CURRENT, newUser); currentUser = newUser;
+            closeModal('register'); checkAuth(); showToast('Регистрация успешна! Добро пожаловать.', 'success'); e.target.reset();
+        }
+        function submitLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim(), pass = document.getElementById('loginPass').value;
+            const users = getDB(DB_USERS), user = users.find(u => u.email === email && u.pass === pass);
+            if (user) { setDB(DB_CURRENT, user); currentUser = user; closeModal('login'); checkAuth(); showToast('Вы успешно вошли в аккаунт!', 'success'); e.target.reset(); }
+            else { showToast('Неверный email или пароль', 'error'); }
+        }
+        function logout() { setDB(DB_CURRENT, null); currentUser = null; checkAuth(); closeDashboard(); toggleUserDropdown(true); showToast('Вы вышли из аккаунта', 'success'); }
+
+        // ===== DASHBOARD =====
+        function updateDashboardUI() {
+            if (!currentUser) return;
+            document.getElementById('dashName').textContent = currentUser.name;
+            document.getElementById('dashEmail').textContent = currentUser.email;
+            document.getElementById('dashAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('profName').textContent = currentUser.name;
+            document.getElementById('profEmail').textContent = currentUser.email;
+            renderBookings();
+        }
+        function openDashboard(tab = 'profile') { if (!currentUser) { openModal('login'); return; } document.getElementById('dashboardOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; switchTab(tab); updateDashboardUI(); }
+        function closeDashboard() { document.getElementById('dashboardOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const buttons = document.querySelectorAll('.tab-btn');
+            if(tab === 'profile') buttons[0].classList.add('active');
+            if(tab === 'bookings') buttons[1].classList.add('active');
+            if(tab === 'newbook') buttons[2].classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if(tab === 'bookings') renderBookings();
+        }
+        function renderBookings() {
+            const list = document.getElementById('bookingsList');
+            const bookings = getDB(DB_BOOKINGS).filter(b => b.userEmail === currentUser.email);
+            if (bookings.length === 0) { list.innerHTML = `<div class="empty-state"><span>📭</span><p>Нет активных бронирований.<br>Забронируйте первую поездку!</p></div>`; return; }
+            list.innerHTML = bookings.map(b => `<div class="booking-card ${b.status}"><h4>${b.car}</h4><p>📅 ${new Date(b.date).toLocaleString('ru-RU')}</p><p>💳 ${getTariffName(b.tariff)}</p><p>🆔 #${b.id}</p><span class="booking-status status-${b.status}">${b.status === 'pending' ? '⏳ Ожидание' : '✅ Подтверждено'}</span></div>`).reverse().join('');
+        }
+        function getTariffName(key) { return { minute: 'Поминутный', hour: 'Пакет 2 часа', day: 'Суточный' }[key] || key; }
+
+        // ===== BOOKING =====
+        function openBooking(carName) {
+            if (!currentUser) { showToast('Для бронирования необходимо войти в аккаунт', 'error'); setTimeout(() => openModal('login'), 1000); return; }
+            openModal('book'); document.getElementById('bookCar').value = carName; document.getElementById('bookName').value = currentUser.name;
+        }
+        function selectTariffFromPricing(tariffType) {
+            if (!currentUser) { showToast('Для выбора тарифа необходимо войти в аккаунт', 'error'); openModal('login'); return; }
+            openModal('book'); document.getElementById('bookTariff').value = tariffType; document.getElementById('bookName').value = currentUser.name;
+            showToast('Тариф выбран! Теперь выберите автомобиль.', 'success');
+        }
+        function submitBooking(e) { e.preventDefault(); const car = document.getElementById('bookCar').value, tariff = document.getElementById('bookTariff').value, date = document.getElementById('bookDate').value; if (!car) { showToast('Пожалуйста, выберите автомобиль!', 'error'); return; } createBooking(car, tariff, date); closeModal('book'); showToast('Бронирование подтверждено!', 'success'); e.target.reset(); }
+        function submitQuickBook(e) { e.preventDefault(); createBooking(document.getElementById('dashCarSelect').value, document.getElementById('dashTariffSelect').value, document.getElementById('dashDate').value); showToast('Поездка забронирована!', 'success'); e.target.reset(); switchTab('bookings'); }
+        function createBooking(car, tariff, date) { const booking = { id: Math.floor(100000 + Math.random() * 900000), car, tariff, date, status: 'confirmed', userEmail: currentUser.email, createdAt: new Date().toISOString() }; const bookings = getDB(DB_BOOKINGS); bookings.push(booking); setDB(DB_BOOKINGS, bookings); updateDashboardUI(); }
+
+        // ===== INFO MODAL =====
+        function openInfoModal(carName) {
+            const car = carData[carName]; if (!car) return;
+            const prices = { 'Hyundai Solaris': { min: 8, hour: 390, day: 2100 }, 'Kia Rio': { min: 8, hour: 390, day: 2100 }, 'Volkswagen Polo': { min: 9, hour: 430, day: 2350 }, 'Skoda Octavia': { min: 12, hour: 580, day: 3150 }, 'Mazda 3': { min: 13, hour: 620, day: 3400 }, 'Toyota Corolla': { min: 13, hour: 620, day: 3400 }, 'BMW 3 Series': { min: 18, hour: 860, day: 4700 }, 'Mercedes-Benz C-Class': { min: 20, hour: 960, day: 5250 }, 'BMW 5 Series': { min: 28, hour: 1340, day: 7350 }, 'Audi A6': { min: 30, hour: 1440, day: 7900 }, 'Mercedes-Benz GLE': { min: 35, hour: 1680, day: 9200 } };
+            const price = prices[carName];
+            const content = `<div class="info-modal-header"><div class="info-modal-emoji">${car.emoji}</div><div class="info-modal-title"><h2>${carName}</h2><span class="car-class-badge ${car.badgeClass}">${car.class}</span></div></div><div class="info-specs-grid"><div class="info-spec-item"><div class="info-spec-label">Год выпуска</div><div class="info-spec-value">${car.year}</div></div><div class="info-spec-item"><div class="info-spec-label">Двигатель</div><div class="info-spec-value">${car.engine}</div></div><div class="info-spec-item"><div class="info-spec-label">Коробка</div><div class="info-spec-value">${car.transmission}</div></div><div class="info-spec-item"><div class="info-spec-label">Топливо</div><div class="info-spec-value">${car.fuel}</div></div><div class="info-spec-item"><div class="info-spec-label">Расход</div><div class="info-spec-value">${car.consumption}</div></div><div class="info-spec-item"><div class="info-spec-label">Багажник</div><div class="info-spec-value">${car.trunk}</div></div><div class="info-spec-item"><div class="info-spec-label">Разгон 0-100</div><div class="info-spec-value">${car.acceleration}</div></div></div><div class="info-features-list"><h3>Оснащение</h3><ul>${car.features.map(f => `<li>${f}</li>`).join('')}</ul></div><h3 style="margin-bottom:12px;">Стоимость аренды</h3><table class="info-pricing-table"><tr><th>Поминутно</th><td>${price.min} ₽/мин</td></tr><tr><th>Пакет 2 часа</th><td>~${price.hour} ₽</td></tr><tr><th>Сутки</th><td>~${price.day} ₽</td></tr></table><button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="closeModal('info'); openBooking('${carName}')">Забронировать этот автомобиль</button>`;
+            document.getElementById('infoContent').innerHTML = content; openModal('info');
+        }
+
+        // ===== INTERACTIVE MAP =====
+        let map, carMarkers = [], activeFilter = 'all';
+        const carLocations = [
+            { name: 'Hyundai Solaris', class: 'economy', lat: 56.0184, lng: 92.8672, price: 8 }, { name: 'Kia Rio', class: 'economy', lat: 56.0156, lng: 92.8598, price: 8 }, { name: 'Volkswagen Polo', class: 'economy', lat: 56.0223, lng: 92.8745, price: 9 },
+            { name: 'Skoda Octavia', class: 'comfort', lat: 56.0198, lng: 92.8634, price: 12 }, { name: 'Mazda 3', class: 'comfort', lat: 56.0167, lng: 92.8712, price: 13 }, { name: 'Toyota Corolla', class: 'comfort', lat: 56.0245, lng: 92.8689, price: 13 },
+            { name: 'BMW 3 Series', class: 'business', lat: 56.0176, lng: 92.8623, price: 18 }, { name: 'Mercedes-Benz C-Class', class: 'business', lat: 56.0211, lng: 92.8756, price: 20 },
+            { name: 'BMW 5 Series', class: 'premium', lat: 56.0189, lng: 92.8645, price: 28 }, { name: 'Audi A6', class: 'premium', lat: 56.0234, lng: 92.8701, price: 30 }, { name: 'Mercedes-Benz GLE', class: 'premium', lat: 56.0162, lng: 92.8667, price: 35 },
+            { name: 'Hyundai Solaris', class: 'economy', lat: 56.0145, lng: 92.8789, price: 8 }, { name: 'Skoda Octavia', class: 'comfort', lat: 56.0267, lng: 92.8612, price: 12 }, { name: 'BMW 3 Series', class: 'business', lat: 56.0134, lng: 92.8534, price: 18 }, { name: 'Audi A6', class: 'premium', lat: 56.0289, lng: 92.8823, price: 30 }
+        ];
+        function initMap() {
+            map = L.map('carMap', { zoomControl: true, attributionControl: true }).setView([56.0184, 92.8672], 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+            const markerIcons = {
+                economy: L.divIcon({ className: 'custom-marker', html: '<div class="legend-marker economy" style="width:32px;height:32px;font-size:0.9rem">Э</div>', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] }),
+                comfort: L.divIcon({ className: 'custom-marker', html: '<div class="legend-marker comfort" style="width:32px;height:32px;font-size:0.9rem">К</div>', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] }),
+                business: L.divIcon({ className: 'custom-marker', html: '<div class="legend-marker business" style="width:32px;height:32px;font-size:0.9rem">Б</div>', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] }),
+                premium: L.divIcon({ className: 'custom-marker', html: '<div class="legend-marker premium" style="width:32px;height:32px;font-size:0.9rem">П</div>', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
+            };
+            carLocations.forEach(car => {
+                const marker = L.marker([car.lat, car.lng], { icon: markerIcons[car.class] }).addTo(map);
+                const carInfo = carData[car.name];
+                const popupContent = `<div class="map-popup"><div class="map-popup-header"><div class="map-popup-car">${carInfo?.emoji || '🚗'}</div><div><div class="map-popup-title">${car.name}</div><span class="map-popup-class ${car.class}">${carInfo?.class || 'Автомобиль'}</span></div></div><div class="map-popup-price">${car.price} ₽ <small>/ мин</small></div><div class="map-popup-specs"><span class="map-popup-spec">⚙️ ${carInfo?.transmission || 'АКПП'}</span><span class="map-popup-spec">⛽ ${carInfo?.fuel || 'Бензин'}</span><span class="map-popup-spec">👥 5 мест</span></div><button class="btn btn-primary btn-sm map-popup-btn" onclick="openBooking('${car.name}')">Забронировать</button><button class="btn btn-info btn-sm map-popup-btn" style="margin-top:6px" onclick="closeMapPopup(); openInfoModal('${car.name}')">ℹ️ Подробнее</button></div>`;
+                marker.bindPopup(popupContent, { maxWidth: 300, minWidth: 250, closeButton: true, autoClose: true });
+                carMarkers.push({ marker, class: car.class, name: car.name });
+            });
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const filterClass = this.dataset.class; activeFilter = filterClass;
+                    document.querySelectorAll('.legend-item').forEach(i => i.classList.remove('active')); this.classList.add('active');
+                    carMarkers.forEach(cm => { if (filterClass === 'all' || cm.class === filterClass) { if (!map.hasLayer(cm.marker)) cm.marker.addTo(map); } else { if (map.hasLayer(cm.marker)) map.removeLayer(cm.marker); } });
+                });
+            });
+            setTimeout(() => { document.querySelectorAll('.custom-marker').forEach(marker => { marker.style.animation = 'pulse 2s infinite'; }); }, 500);
+        }
+        function closeMapPopup() { if (map) map.closePopup(); }
+
+        // ===== UI HELPERS =====
+        function toggleUserDropdown(forceClose = false) { const dd = document.getElementById('userDropdown'); if (forceClose) dd.classList.remove('show'); else dd.classList.toggle('show'); }
+        document.addEventListener('click', e => { if (!e.target.closest('.user-menu-container')) document.getElementById('userDropdown').classList.remove('show'); });
+        function handleHeroCta() { if(currentUser) openDashboard('newbook'); else openModal('register'); }
+        function openModal(type) { document.getElementById(`modal-${type}`).classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeModal(type) { document.getElementById(`modal-${type}`).classList.remove('active'); document.body.style.overflow = ''; }
+        function switchModal(from, to) { closeModal(from); openModal(to); }
+        document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if(e.target===ov){ov.classList.remove('active'); document.body.style.overflow='';}}));
+        document.addEventListener('keydown', e => { if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(m=>{m.classList.remove('active');}); document.body.style.overflow='';}});
+        function toggleMobile() { document.getElementById('mobileMenu').classList.toggle('active'); document.getElementById('hamburger').classList.toggle('active'); }
+        function closeMobile() { document.getElementById('mobileMenu').classList.remove('active'); document.getElementById('hamburger').classList.remove('active'); }
+        function showToast(text, type = 'success') { const t = document.getElementById('toast'); document.getElementById('toastText').textContent = text; t.className = `toast ${type} show`; setTimeout(() => t.classList.remove('show'), 3500); }
+        function filterCars(cls) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.car-card').forEach(c => c.style.display = (cls === 'all' || c.dataset.class === cls) ? 'block' : 'none'); }
+        function toggleFaq(element) { const item = element.closest('.faq-item'), answer = item.querySelector('.faq-answer'), isActive = item.classList.contains('active'); document.querySelectorAll('.faq-item').forEach(faq => { faq.classList.remove('active'); faq.querySelector('.faq-answer').style.maxHeight = null; }); if (!isActive) { item.classList.add('active'); answer.style.maxHeight = answer.scrollHeight + "px"; } }
+        function submitContact(e) { e.preventDefault(); showToast('Сообщение отправлено!'); e.target.reset(); }
+        function quickBooking(e) { e.preventDefault(); showToast('Поиск автомобилей...'); document.getElementById('cars').scrollIntoView({behavior:'smooth'}); }
+
+        // ===== INIT =====
+        window.addEventListener('scroll', () => { document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50); document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 500); });
+        const observer = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold: 0.1 });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        const today = new Date().toISOString().split('T')[0]; document.getElementById('startDate').setAttribute('min', today); document.getElementById('startDate').value = today;
+        document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); const t = document.querySelector(a.getAttribute('href')); t && t.scrollIntoView({behavior:'smooth'}); }));
+        const zonesSection = document.getElementById('zones');
+        const mapObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting && !map) { initMap(); } }); }, { threshold: 0.1 });
+        if (zonesSection) { mapObserver.observe(zonesSection); } else { window.addEventListener('load', () => { if (document.getElementById('carMap') && !map) { initMap(); } }); }
+        checkAuth();
+    </script>
+</body>
+</html>
